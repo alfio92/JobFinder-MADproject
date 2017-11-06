@@ -1,0 +1,59 @@
+<!--
+  Generated template for the JobadslistPage page.
+
+  See http://ionicframework.com/docs/components/#navigation for more info on
+  Ionic pages and navigation.
+-->
+<ion-header>
+  <ion-navbar color="primary" no-border-bottom>
+
+    
+      <button ion-button icon-only menuToggle>
+        <ion-icon icon-left name="menu"></ion-icon>
+      </button>
+    
+      <ion-title>I Tuoi Annunci</ion-title>
+
+  </ion-navbar>
+</ion-header>
+
+
+<ion-content padding>
+
+   <!-- SPINNER PER IL CARICAMENTO ED EVENTUALE ERRORE -->
+   <div [hidden]="candNumLoaded || errMess" text-center>
+      <ion-spinner></ion-spinner>
+      <h4>Loading . . . Please Wait</h4>
+    </div>
+    <div *ngIf="errMess">
+      <h2>Error</h2>
+      <h4>{{jobsErrMess}}</h4>
+    </div>
+
+    <ion-list *ngIf="candNumLoaded">
+        
+            <ion-item *ngFor="let ad of jobs; let i = index ">
+              <div item-start>
+                <p text-uppercase>
+                  <b>{{ad.jobtype}}</b>
+                </p>
+              </div>
+              <div text-center margin-right item-right>
+                <ion-icon name="people" icon-small icon-left></ion-icon>
+                <p>{{acceptedCandNum[i]}}/{{ad.numpositions}}</p>
+              </div>
+      
+              <p item-right small>
+                 {{ candidatesNum[i] }} cand.
+              </p>
+
+           
+                  <button icon-only item-end color="white-btn" (click)="presentPopover($event, ad.id)">
+                      <ion-icon name="more"></ion-icon>
+                  </button> 
+               
+            </ion-item>
+
+    </ion-list>
+
+</ion-content>
