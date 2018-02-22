@@ -1,0 +1,51 @@
+<!--
+  Generated template for the JobrequestlistPage page.
+
+  See http://ionicframework.com/docs/components/#navigation for more info on
+  Ionic pages and navigation.
+-->
+<ion-header>
+  <ion-navbar color="primary" no-border-bottom>
+
+    
+      <button ion-button icon-only menuToggle>
+        <ion-icon icon-left name="menu"></ion-icon>
+      </button>
+    
+      <ion-title>Le Tue Candidature Attive</ion-title>
+
+  </ion-navbar>
+</ion-header>
+
+<ion-content padding>
+
+    <ion-list *ngIf="allLoaded"no-border>
+        
+      <ion-item *ngFor="let jobrequests of jobreq">
+          <p item-start text-center (click)="goToJob()">
+              {{jobreq.job.jobtype}}<br><small>{{jobreq.job.insertdate}}</small>
+          </p>
+
+              <div text-center text-capitalize text-nowrap>
+
+                    <small>{{jobreq.job.businessname}}<br>{{jobreq.job.businesstype}}</small>
+              
+              </div>
+
+              <button icon-only item-end (click)="presentPopover($event, jobreq.id)">
+                  <ion-icon name="more"></ion-icon>
+              </button>
+      </ion-item>
+    </ion-list>
+
+    <!-- SPINNER PER IL CARICAMENTO ED EVENTUALE ERRORE -->
+    <div [hidden]="allLoaded || errMess" text-center>
+        <ion-spinner></ion-spinner>
+        <h4>Loading . . . Please Wait</h4>
+      </div>
+      <div *ngIf="errMess">
+        <h2>Error</h2>
+        <h4>{{jobsErrMess}}</h4>
+      </div>
+
+</ion-content>

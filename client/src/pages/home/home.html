@@ -1,0 +1,305 @@
+<ion-header>
+  <ion-navbar color="primary" no-border-bottom>
+
+    <button ion-button menuToggle>
+      <ion-icon name="menu"></ion-icon>
+    </button>
+   
+   <ion-title>Home</ion-title>
+
+   <ion-buttons end *ngIf="user">
+      <button padding ion-button icon-only (click)="presentPopover($event)">
+          <ion-icon name="more"></ion-icon>
+      </button>
+   </ion-buttons>
+    
+
+  </ion-navbar>
+
+  <ion-toolbar no-border color="primary">
+
+    <ion-segment [(ngModel)]="selectedSegmentUser" color="light" *ngIf="user">
+
+      <ion-segment-button value="adsbypos" >
+        ANNUNCI
+      </ion-segment-button>
+      <ion-segment-button value="map" (click)="loadMap()">
+        MAPPA
+      </ion-segment-button>
+
+    </ion-segment>
+
+    <ion-segment [(ngModel)]="selectedSegmentBusiness" color="light" *ngIf="businessuser">
+
+      <ion-segment-button value="myads">
+        MIEI ANNUNCI
+      </ion-segment-button>
+      <ion-segment-button value="createad">
+        CREA ANNUNCIO
+      </ion-segment-button>
+
+    </ion-segment>
+              
+    
+  </ion-toolbar>
+
+</ion-header>
+
+<ion-content no-padding class="card-background-page">
+      
+      <div [ngSwitch]="selectedSegmentUser" *ngIf="user">
+           
+          <div *ngSwitchCase="'adsbypos'">
+
+              <ion-list no-margin no-padding inset> <!--  *ngFor="let job of jobs"-->
+                
+                <div *ngFor="let job of jobs" (click)="goToJobAdSelected($event, job)" no-padding>
+
+                  <div class="head">
+                      <img height="190vw" width="100%" src="{{BaseURL + job.businessimage}}"/>
+
+                      <div class="card-title-background" text-capitalize>{{job.businessname}}</div>
+                      <div class="card-subtitle-background" text-capitalize>
+                        {{job.businesstype}} <br>
+                        <ion-icon name="pin" small></ion-icon>
+                        {{job.businesscity}} ({{job.businessprov}})
+                      </div>
+
+                  </div>
+
+                    <h2 text-capitalize no-margin padding-left>{{job.jobtype}}</h2>
+                  <!--
+                    <ion-card-header no-padding padding-left>
+                      <ion-card-title no-margin text-capitalize></ion-card-title>
+                    </ion-card-header>
+                  -->
+                    <ion-item>
+                        <ion-icon name="time" item-left large></ion-icon>
+                        <h2>Periodo e Orario</h2>
+                        <p text-capitalize>{{job.initperiod | slice:0:3}}-{{job.endperiod | slice:0:3}},{{job.inittime}}-{{job.endtime}} {{job.initday | slice:0:3}}-{{job.endday | slice:0:3}}</p>
+                    </ion-item>
+                      
+                    <ion-item>
+                        <ion-icon name="cash" item-left large></ion-icon>
+                        <h2>Salario</h2>
+                        <p>{{job.cash}}</p>
+                    </ion-item>
+    
+                    <ion-item no-margin no-lines>
+                        <ion-note item-left><ion-icon name="people" small></ion-icon>
+                          {{job.numpositions}} Posizioni Aperte</ion-note>
+                       <ion-note item-right>{{job.insertdate}}</ion-note>
+                    </ion-item>
+
+                    <hr>
+
+                  </div>
+
+                
+
+              </ion-list>
+
+            </div>
+   
+           <div #map id="map" *ngSwitchCase="'map'" style="height:100%;"></div>
+
+      </div>
+
+            <!-- SPINNER PER IL CARICAMENTO ED EVENTUALE ERRORE -->
+            <div *ngIf="user"[hidden]="jobs || jobsErrMess" text-center>
+                <ion-spinner></ion-spinner>
+                <h4>Loading . . . Please Wait</h4>
+              </div>
+              <div *ngIf="jobsErrMess">
+                <h2>Error</h2>
+                <h4>{{jobsErrMess}}</h4>
+              </div>
+
+             <!-- SPINNER PER IL CARICAMENTO ED EVENTUALE ERRORE -->
+             <div *ngIf="businessuser" [hidden]="allLoaded || jobsErrMess" text-center>
+                <ion-spinner></ion-spinner>
+                <h4>Loading . . . Please Wait</h4>
+              </div>
+              <div *ngIf="jobsErrMess">
+                <h2>Error</h2>
+                <h4>{{jobsErrMess}}</h4>
+              </div>
+          
+        <div [ngSwitch]="selectedSegmentBusiness" *ngIf="businessuser">
+            <!-- I MIEI ANNUNCI-->
+
+            <div *ngSwitchCase="'myads'">
+
+              <ion-list no-lines> 
+                <ion-item *ngFor="let ad of jobs;let i = index"> <!-- (click)="goToJobAdSelected(ad)" -->
+
+              <ion-item-divider color="white-btn" *ngIf="allLoaded"> 
+
+                  <ion-note text-uppercase (click)="goToJobAdSelected($event, ad)">
+                    <b>{{ad.jobtype}}</b>
+                  </ion-note>
+                  
+                  <ion-note  padding-left item-right>
+                    <ion-icon name="people" small icon-left></ion-icon>
+                    {{acceptedCandNum[adIndex]}}/{{ad.numpositions}}
+                  </ion-note>
+                 
+                  <ion-note padding-left item-right>
+                      {{ad.insertdate}}
+                  </ion-note>
+                  
+                  <button no-padding no-margin icon-only item-end (click)="presentToggle(i)">
+                      <ion-icon [name]="isToggle[i] ? 'arrow-dropup' : 'arrow-dropdown'"></ion-icon>
+                  </button>                 
+
+                </ion-item-divider> 
+                
+                  <!--  -->
+                  <div *ngIf="isToggle[i]">
+                    <ion-item-sliding *ngFor="let request of ad.jobrequests; let reqIndex = index" #item> <!--  -->
+                      <ion-item *ngIf="request.status === 'noreply'" (click)="goToProfileSelected($event, request)">
+                        <ion-avatar item-start>
+                          <img src="{{BaseURL+request.imageuser}}">
+                        </ion-avatar>
+                        <h2 text-capitalize>{{request.nameuser}} {{request.surnameuser}}</h2>
+                        <p>{{request.date}}</p>
+                        <ion-icon name="arrow-back" item-end></ion-icon> 
+                      </ion-item>
+                      
+                      <ion-item-options side="right" *ngIf="request.status === 'noreply'"> <!-- *ngIf="request.status === 'noreply'" -->
+                        <button ion-button color="danger" (click)="sendReplyToRequest(request.id ,reqIndex, i, 'refused');">
+                          <ion-icon name="close-circle"></ion-icon>
+                          Rifiuta
+                        </button>
+                        <button ion-button color="secondary" (click)="sendReplyToRequest(request.id ,reqIndex, i, 'accepted');">
+                          <ion-icon name="checkmark-circle"></ion-icon>
+                            Accetta
+                        </button>
+                      </ion-item-options>
+                      
+                    </ion-item-sliding>
+                  </div>
+                </ion-item>
+
+              </ion-list>
+
+            </div>
+
+           <!-- CREA ANNUNCIO-->
+
+          <div *ngSwitchCase="'createad'">
+
+            <form [formGroup]="jobAdForm" (ngSubmit)="onSubmit()" padding>
+              
+              <ion-list>
+                    
+                      <ion-item>
+                          <ion-label>Tipo</ion-label>
+                          <ion-select formControlName="jobtype">
+                            <ion-option value="animatore">Animatore</ion-option>
+                            <ion-option value="aiutocuoco">Aiutocuoco</ion-option>
+                            <ion-option value="barista">Barista</ion-option>
+                            <ion-option value="barman">Barman</ion-option>
+                            <ion-option value="cameriere">Cameriere</ion-option>
+                            <ion-option value="chef">Chef</ion-option>
+                            <ion-option value="cuoco">Cuoco</ion-option>
+                            <ion-option value="gelataio">Gelataio</ion-option>
+                            <ion-option value="inserviente">Inserviente</ion-option>
+                            <ion-option value="lavapiatti">Lavapiatti</ion-option>
+                            <ion-option value="pizzaiolo">Pizzaiolo</ion-option>
+                            <ion-option value="receptionist">Receptionist</ion-option>
+                          </ion-select>
+                      </ion-item>
+                      
+                      <ion-item>
+                        <ion-label floating>Numero Posizioni Aperte</ion-label>
+                        <ion-input type="text" formControlName="numpositions" pattern="[1-9]*"></ion-input>
+                      </ion-item>
+              
+                      <ion-item>
+                          <ion-label floating>Salario all'ora (in euro)</ion-label>
+                          <ion-input type="text" formControlName="cash" pattern="([1-9]*[.])\?[0-9]*"></ion-input>
+                      </ion-item>
+      
+                      <ion-item>
+                          <ion-label class="fix-margin">Da</ion-label>
+                          
+                          <ion-datetime formControlName="initperiod" displayFormat="MM/YYYY"></ion-datetime>
+                          
+                      </ion-item>
+
+                      <ion-item>
+                          <ion-label class="fix-margin">A</ion-label>
+                          
+                          <ion-datetime formControlName="endperiod" displayFormat="MM/YYYY"></ion-datetime>
+
+                      </ion-item>
+      
+                      <ion-item>
+                          <ion-label class="fix-margin">Giorni</ion-label>
+                          
+                          <ion-select interface="popover" formControlName="initday">
+                              <ion-option value="lunedi">Lunedi</ion-option>
+                              <ion-option value="martedi">Martedi</ion-option>
+                              <ion-option value="mercoledi">Mercoledi</ion-option>
+                              <ion-option value="giovedi">Giovedi</ion-option>
+                              <ion-option value="venerdi">Venerdi</ion-option>
+                              <ion-option value="sabato">Sabato</ion-option>
+                              <ion-option value="domenica">Domenica</ion-option>
+                            </ion-select>  
+                          
+                          <ion-select interface="popover" formControlName="endday">
+                              <ion-option value="lunedi">Lunedi</ion-option>
+                              <ion-option value="martedi">Martedi</ion-option>
+                              <ion-option value="mercoledi">Mercoledi</ion-option>
+                              <ion-option value="giovedi">Giovedi</ion-option>
+                              <ion-option value="venerdi">Venerdi</ion-option>
+                              <ion-option value="sabato">Sabato</ion-option>
+                              <ion-option value="domenica">Domenica</ion-option>
+                            </ion-select>  
+                      </ion-item>
+      
+                      <ion-item>
+                          <ion-label class="fix-margin">Orario Inizio</ion-label>
+                          
+                          <ion-datetime formControlName="inittime" displayFormat="HH:mm"></ion-datetime>
+                          
+                      </ion-item>
+
+                      <ion-item>
+                          <ion-label class="fix-margin">Orario Fine</ion-label>
+                          
+                          <ion-datetime formControlName="endtime" displayFormat="HH:mm"></ion-datetime>
+
+                      </ion-item>
+
+                      <ion-item>
+                          <ion-label>Eventuali extra</ion-label>
+                          <ion-checkbox formControlName="extra"></ion-checkbox>
+                        </ion-item>
+
+                      <ion-item margin-top>
+                          <ion-textarea rows="7" type="text" formControlName="description" placeholder="Dettagli su come presentarsi sul luogo di lavoro, sue modalità ed eventuali dettagli"></ion-textarea>
+                      </ion-item>
+                      
+                      <div text-center margin-top>
+                        <button ion-button round full padding type="submit" [disabled]="!jobAdForm.valid">Crea Annuncio</button>
+                      </div>
+                   
+              </ion-list>
+            </form>
+          </div>
+
+      </div>
+    
+       
+
+  <!--
+  <h3>Ionic Menu Starter</h3>
+
+  <p>
+    If you get lost, the <a href="http://ionicframework.com/docs/v2">docs</a> will show you the way.
+  </p>
+
+  <button ion-button secondary menuToggle>Toggle Menu</button> -->
+</ion-content>

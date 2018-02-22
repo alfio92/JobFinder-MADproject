@@ -1,0 +1,179 @@
+<!--
+  Generated template for the ProfilePage page.
+
+  See http://ionicframework.com/docs/components/#navigation for more info on
+  Ionic pages and navigation.
+-->
+<ion-header>
+  <ion-navbar color="primary" no-border-bottom>
+
+    
+      <button ion-button icon-only menuToggle>
+        <ion-icon icon-left name="menu"></ion-icon>
+      </button>
+    
+      <ion-title>Profile</ion-title>
+
+  </ion-navbar>
+</ion-header>
+
+
+<ion-content>
+
+
+    <ion-grid class="profile-header" color="profile-btn">
+        <ion-row>
+          <ion-col>
+            
+          </ion-col>
+          <ion-col col-auto>
+              <img class="image" src="{{BaseURL+user?.image}}">              
+          </ion-col>
+          <ion-col>
+            
+          </ion-col>
+        </ion-row>
+        <p class="title" no-margin text-center text-capitalize><strong>{{user?.name}} {{user?.surname}}</strong>
+          <ion-icon name="{{user?.gender}}" margin-left></ion-icon>
+        </p>
+        <p class="subtitle" no-margin text-center text-capitalize>{{user?.city}} ({{user?.province}})</p>
+    </ion-grid>
+      
+        <ion-segment color="primary" [(ngModel)]="selectedSegment">
+
+          <ion-segment-button value="detail">
+            Dettagli
+          </ion-segment-button>
+          <ion-segment-button value="requests">
+            Candidature    
+          </ion-segment-button>
+          <ion-segment-button value="curriculum">
+            Curriculum
+          </ion-segment-button>
+                  
+        </ion-segment>
+
+
+        <div [ngSwitch]="selectedSegment" *ngIf="user" padding-top>
+
+          <ion-list *ngSwitchCase="'detail'" no-lines>
+
+            <ion-list-header no-margin no-lines>
+              <b>Edu & Skills</b>
+            </ion-list-header>
+          
+            <ion-item>
+                <ion-label text-capitalize>
+                    {{user?.study}}
+                  </ion-label>
+              <ion-icon name='school' item-start></ion-icon>
+          
+            </ion-item>
+            <!-- let skill of user.skills -->
+            <ion-item>
+                <h2 text-capitalize *ngFor="let skill of user?.skills">
+                 {{skill}}
+                </h2>
+              <ion-icon name='ribbon' item-start></ion-icon>
+        
+            </ion-item>
+
+            <ion-list-header padding-top>
+              <b>Contacts</b>
+            </ion-list-header>
+
+            <ion-item>
+              <ion-label>
+                  {{user?.email}}
+              </ion-label>
+            <ion-icon name='mail' item-start></ion-icon>
+        
+          </ion-item>
+
+          <ion-item>
+            <ion-label>
+                {{user?.telnumber}}
+              </ion-label>
+            <ion-icon name='call' item-start></ion-icon>
+      
+          </ion-item>
+
+          <ion-list-header no-margin padding-top>
+            <b>Info</b>
+          </ion-list-header>
+
+          <ion-item>
+            <ion-label>
+              {{user?.birthdate}}
+            </ion-label>
+            <ion-icon name='calendar' item-start></ion-icon>
+          </ion-item>
+
+          <ion-item>
+              <ion-label text-capitalize>
+                  {{user?.city}} ({{user?.province}})
+              </ion-label>
+              <ion-icon name='map' item-start></ion-icon>
+            </ion-item>
+
+          <ion-item>
+            <ion-label text-capitalize>
+                {{user?.address}}
+            </ion-label>
+            <ion-icon name='pin' item-start></ion-icon>
+          </ion-item>
+
+            <ion-list-header no-padding no-margin padding-top padding-left>
+              <b>Descrizione</b>
+            </ion-list-header>
+  
+            
+              <ion-item no-lines text-wrap>
+               {{user?.description}}
+              </ion-item>
+
+          </ion-list>
+
+          <ion-list *ngSwitchCase="'requests'" no-lines>
+
+              <!-- SPINNER PER IL CARICAMENTO ED EVENTUALE ERRORE -->
+              <div [hidden]="jobs.length > 0 || errMess" text-center>
+                <ion-spinner></ion-spinner>
+                <h4>Loading . . . Please Wait</h4>
+              </div>
+              <div *ngIf="errMess">
+                <h2>Error</h2>
+                <h4>{{errMess}}</h4>
+              </div>
+
+              <ion-item *ngFor="let ad of jobs; let i = index">
+                  
+                  <h2 text-capitalize>{{ad.jobtype}}</h2>
+                  <p text-capitalize>{{ad.businessname}} , {{ad.businesstype}}</p>
+                  <ion-icon [name]="ad.jobrequests[0].status === 'accepted' ? 'thumbs-up': ad.jobrequests[0].status === 'refused' ? 'thumbs-down' :  '' " 
+                  [color]="ad.jobrequests[0].status === 'accepted' ? 'secondary' : 'danger' " item-end></ion-icon>
+                </ion-item>
+          
+          </ion-list>
+
+          
+
+          <ion-list *ngSwitchCase="'curriculum'" no-lines>
+
+            <ion-list-header no-lines><b>Skill</b>    
+              <button *ngIf="myProfile" color="white-btn" item-right padding margin ion-button icon-only small (click)="openEditCurriculumModal()">
+                <ion-icon icon-small icon-only color="primary" name="create"></ion-icon>
+              </button>                 
+            </ion-list-header>
+          
+            <ion-item *ngFor="let skill of user?.skills" text-capitalize>{{skill}}</ion-item>
+
+            <ion-list-header no-lines><b>Esperienze Accademiche e Professionali</b></ion-list-header>
+
+            <ion-item text-wrap text-center>{{user?.curriculum}}</ion-item>
+
+          </ion-list>
+
+        </div>
+
+</ion-content>
